@@ -18,10 +18,29 @@ namespace VoicemeeterAPI
             voiceMeeterHandler.connect();
             serialHandler.connect();
 
-            Console.WriteLine("Press any key to continue...");
-            Console.WriteLine();
-            Console.ReadKey();
-            serialHandler.disconect();
+            char key;
+            Random random = new Random();
+            Console.WriteLine("Press the q key to quit...");
+
+            while (true)
+            {
+                key = Console.ReadKey().KeyChar;
+                if(key == 'q')
+                {
+                    break;
+                }
+                if (key == 's')
+                {
+                    var rand = random.Next(0, 1024);
+
+                    voiceMeeterHandler.setFader(0, rand);
+
+                }
+
+            }
+
+            // console.WriteLine();
+            // Console.ReadKey();
 
         }
 

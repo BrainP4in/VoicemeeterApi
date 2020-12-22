@@ -117,7 +117,7 @@ namespace VoicemeeterAPI
                     message.channel = Int32.Parse(content[2]);
                     message.value = Int32.Parse(content[3]);
 
-                    //onMessage.Invoke(null, message);
+                    onMessage.Invoke(null, message);
 
                 }
                 catch (Exception)

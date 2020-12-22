@@ -9,17 +9,14 @@ namespace VoicemeeterAPI
     {
         float[] lastValue = { -1, -1, -1, -1};
         Timer timer;
-        Timer cooldown = new Timer(1000);
         public EventHandler<int> onSetFader;
 
 
         internal void connect()
         {
             VoiceMeeter.Remote.Initialize(Voicemeeter.RunVoicemeeterParam.VoicemeeterPotato);
-            timer = new Timer(1000);
+            timer = new Timer(10);
             timer.Elapsed += new ElapsedEventHandler(getFader);
-            cooldown.AutoReset = false;
-            cooldown.Elapsed += new ElapsedEventHandler(getFaderCooldown);
             timer.Enabled = true;
         }
 
@@ -31,26 +28,21 @@ namespace VoicemeeterAPI
         // Move Voicemeeter fader to value
         public void setFader(int channel, float value)
         {
-            //timer.Enabled = false;
-
             Console.WriteLine("setFader voicemeeter ch: " + channel + " val: " + value);
 
             value = (float) decimal.Round( (decimal) Utils.Remap(value, 3f, 1021f, -60f, 12f),1);
 
             VoiceMeeter.Remote.SetParameter($"Strip[{channel}].Gain", value);
             lastValue[channel] = value;
-
-            //cooldown.Stop();
-            //cooldown.Start();
+            Voicemeeter.RemoteWrapper.IsParametersDirty();
         }
 
+        // Check if VM Fader moved, if send via serial
         public void getFader(object source, ElapsedEventArgs e)
         {
-
-
             int channel = 0;
 
-            if (Voicemeeter.RemoteWrapper.IsParametersDirty() != 1) return; // lastValue[channel] == -1 || 
+            if (Voicemeeter.RemoteWrapper.IsParametersDirty() != 1) return;
 
             float currentVal = VoiceMeeter.Remote.GetParameter($"Strip[{channel}].Gain");
 
@@ -63,6 +55,8 @@ namespace VoicemeeterAPI
                 int value = Convert.ToInt32(Utils.Remap(currentVal, -60f, 12f, 3f, 1021f));
 
                 onSetFader.Invoke(null, value);
+                Console.WriteLine("setFader arduino ch: " + channel + " val: " + value);
+
             }
         }
 
